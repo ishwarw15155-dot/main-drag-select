@@ -88,7 +88,7 @@ const formatDateString = (dateVal: string): string => {
   return dateVal;
 };
 
-const DAYS: string[] = ["DATE", "MON", "TUE", "WED", "THU", "FRI];
+const DAYS: string[] = ["DATE", "MON", "TUE", "WED", "THU", "FRI"];
 const GOOGLE_SHEET_API_URL: string = "https://script.google.com/macros/s/AKfycbwmi5z6IOos0gSYWBu6yOoubewCZeiLwQWHsnjfC20rHqXPpiYgUbuTyTPz2D1ipSPFBA/exec";
 
 interface CellPosition {
