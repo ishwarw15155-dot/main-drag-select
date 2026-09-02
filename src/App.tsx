@@ -88,8 +88,8 @@ const formatDateString = (dateVal: string): string => {
   return dateVal;
 };
 
-const DAYS: string[] = ["DATE", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-const GOOGLE_SHEET_API_URL: string = "https://script.google.com/macros/s/AKfycbxl1Qq4yqrRuvYC_H3ZsMDXyUGZw245Ws3kWm8l075Osb0WyZktd6QJosOe_jdgHECd/exec";
+const DAYS: string[] = ["DATE", "MON", "TUE", "WED", "THU", "FRI];
+const GOOGLE_SHEET_API_URL: string = "https://script.google.com/macros/s/AKfycbwmi5z6IOos0gSYWBu6yOoubewCZeiLwQWHsnjfC20rHqXPpiYgUbuTyTPz2D1ipSPFBA/exec";
 
 interface CellPosition {
   rowIndex: number;
