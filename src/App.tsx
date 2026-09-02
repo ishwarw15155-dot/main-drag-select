@@ -129,35 +129,31 @@ const App: React.FC = () => {
   const leftPanelRef = useRef<HTMLDivElement | null>(null);
   const lastRowRef = useRef<HTMLTableRowElement | null>(null);
 
- useEffect(() => {
-  const fetchData = async (): Promise<void> => {
-    try {
-      setLoading(true);
-      const response = await fetch(GOOGLE_SHEET_API_URL);
-      const rawData: unknown = await response.json();
+  useEffect(() => {
+    const fetchData = async (): Promise<void> => {
+      try {
+        setLoading(true);
+        const response = await fetch(GOOGLE_SHEET_API_URL);
+        const rawData: unknown = await response.json();
 
-      if (Array.isArray(rawData) && rawData.length > 0) {
-        // प्रत्येक रो मधील रिकामे किंवा undefined सेल्स योग्य प्रकारे स्ट्रिंग बनवणे
-        const formattedData = (rawData as (string | number)[][]).map((row) =>
-          row.map((cell) => (cell !== null && cell !== undefined ? String(cell).trim() : ""))
-        );
+        if (Array.isArray(rawData) && rawData.length > 0) {
+          const formattedData = (rawData as (string | number)[][]).map((row) =>
+            row.map((cell) => (cell !== null && cell !== undefined ? String(cell).trim() : ""))
+          );
 
-        // ज्या रो मध्ये काहीच डेटा नाही अशा पूर्ण रिकाम्या ओळी काढणे
-        const cleanData = formattedData.filter((row) => row.some((c) => c !== ""));
-        setFullSheetData(cleanData);
-      } else {
-        console.warn("Sheet empty or incorrect data structure:", rawData);
+          const cleanData = formattedData.filter((row) => row.some((c) => c !== ""));
+          setFullSheetData(cleanData);
+        }
+      } catch (error) {
+        console.error("Error fetching Google Sheet data:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching Google Sheet data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchData();
-}, []);
-  
+    fetchData();
+  }, []);
+
   useEffect(() => {
     if (isLoggedIn && !loading && lastRowRef.current) {
       setTimeout(() => {
@@ -240,13 +236,16 @@ const App: React.FC = () => {
     const PAST_ROWS = 10;
     const FUTURE_ROWS = 10;
 
+    // सिलेक्ट केलेल्या जोड्यांमधील आपापसातील Repeat/Family जोड्या शोधा
     const selRepeatPairs: { cell1: CellPosition; cell2: CellPosition }[] = [];
     for (let i = 0; i < selectedCells.length; i++) {
       for (let j = i + 1; j < selectedCells.length; j++) {
         const c1 = selectedCells[i];
         const c2 = selectedCells[j];
-        if (c1.value && c1.value === c2.value && !c1.value.includes('*') && !c1.value.includes('✪')) {
-          selRepeatPairs.push({ cell1: c1, cell2: c2 });
+        if (c1.value && c2.value && !c1.value.includes('*') && !c1.value.includes('✪')) {
+          if (c1.value === c2.value || checkSameFamily(c1.value, c2.value)) {
+            selRepeatPairs.push({ cell1: c1, cell2: c2 });
+          }
         }
       }
     }
@@ -276,6 +275,7 @@ const App: React.FC = () => {
         }
       }
 
+      // हिस्टरी मधील संबंधित पोझिशन्समध्ये जर आपापसात Family/Exact Match असेल तर ते highlight पॉझिशन्स म्हणून सेव्ह करा
       for (const pair of selRepeatPairs) {
         const off1 = pair.cell1.rowIndex - minRow;
         const off2 = pair.cell2.rowIndex - minRow;
